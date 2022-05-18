@@ -13,6 +13,9 @@ class Operations:
                     self.photo[i][j][k] = 255 - self.photo[i][j][k]
         return self.photo
 
+    def set_default(self, photo):
+        self.photo = photo.copy()
+
     def threshold(self, param1, param2):
         for i in range(len(self.photo)):
             for j in range(len(self.photo[i])):

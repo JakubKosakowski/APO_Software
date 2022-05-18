@@ -61,6 +61,11 @@ class PhotoWindow(QWidget):
         prewitt_mask = QPushButton('Prewitt mask')
         prewitt_mask.clicked.connect(self.prewitt_values)
 
+        default = QPushButton('Default image')
+        default.clicked.connect(self.default_image)
+
+
+
         self.grid = QGridLayout(self)
         self.grid.addWidget(btn, 0, 0, Qt.AlignHCenter)
         self.grid.addWidget(neg, 0, 1, Qt.AlignHCenter)
@@ -78,6 +83,8 @@ class PhotoWindow(QWidget):
         self.grid.addWidget(canny, 1, 6, Qt.AlignHCenter)
         self.grid.addWidget(mask_sharp, 1, 7, Qt.AlignHCenter)
         self.grid.addWidget(prewitt_mask, 2, 2, Qt.AlignHCenter)
+        self.grid.addWidget(default, 1, 0, Qt.AlignHCenter)
+
 
 
         self.argument_one = 0
@@ -157,6 +164,11 @@ class PhotoWindow(QWidget):
     def prewitt_image(self):
         self.photo = cv2.cvtColor(self.photo, cv2.COLOR_BGR2GRAY)
         self.photo = self.photo_operations.prewitt(self.mask_type, self.border_type)
+        self.save_image()
+
+    def default_image(self):
+        self.photo = cv2.imread(self.photo_name)
+        self.photo_operations.set_default(self.photo)
         self.save_image()
 
     def save_image(self):
