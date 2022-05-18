@@ -19,7 +19,15 @@ class Operations:
     def user_mask(self, mask, border):
         border_type = self.set_border_type(border)
         mask_type = self.set_mask(mask)
-        self.photo = cv2.filter2D(self.photo, cv2.CV_8UC1, mask_type, borderType=border_type)
+        kernel = np.zeros((3,3))
+
+        for i in range(3):
+            for j in range(3):
+                kernel[i,j] = mask_type[i,j]
+
+        kernel = np.int64(kernel)/np.sum(kernel)
+
+        self.photo = cv2.filter2D(self.photo, cv2.CV_8UC1, kernel, borderType=border_type)
         return self.photo
 
     def threshold(self, param1, param2):
@@ -152,6 +160,14 @@ class Operations:
 
         return self.photo
 
+    def median_blur(self, mask, border):
+        median_blur_mask = self.set_median_blur_mask(mask)
+        border_type = self.set_border_type(border)
+
+        self.photo = cv2.medianBlur(self.photo, median_blur_mask)
+
+        return self.photo
+
     def set_border_type(self, border):
         if border == "Isolated":
             return cv2.BORDER_ISOLATED
@@ -186,3 +202,10 @@ class Operations:
     def set_mask(self, mask):
         arr = np.array([[int(j) for j in i.split(' ')] for i in mask.splitlines()])
         return arr
+
+    def set_median_blur_mask(self, mask):
+        if mask == "3x3":
+            return 3
+        elif mask == "5x5":
+            return 5
+        return 7

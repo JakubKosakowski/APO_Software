@@ -408,3 +408,57 @@ class User(QWidget):
 
     def clicked_border(self, item):
         self.border_type = item.text()
+
+
+class Median(QWidget):
+    submitted = pyqtSignal(str, str)
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("User mask")
+        self.mask_text = QLabel()
+        self.mask_text.setText("Select median blur mask: ")
+
+        self.border_text = QLabel()
+        self.border_text.setText("Select border type: ")
+
+        self.mask_list = QListWidget()
+        self.mask_list.setGeometry(50, 70, 150, 60)
+        self.mask_value = "3x3"
+        self.mask_list.addItem("3x3")
+        self.mask_list.addItem("5x5")
+        self.mask_list.addItem("7x7")
+        self.mask_list.itemClicked.connect(self.clicked_mask)
+
+        self.btn = QPushButton("OK")
+        self.btn.clicked.connect(self.send_values)
+
+        self.border = QListWidget()
+        self.border.setGeometry(50, 70, 150, 60)
+        self.border_type = "Isolated"
+        self.border.addItem("Isolated")
+        self.border.addItem("Reflect")
+        self.border.addItem("Replicate")
+        self.border.itemClicked.connect(self.clicked_border)
+
+        self.vbox = QGridLayout(self)
+        self.vbox.addWidget(self.mask_text, 0, 0)
+        self.vbox.addWidget(self.mask_list, 0, 1)
+        self.vbox.addWidget(self.border_text, 0, 2)
+        self.vbox.addWidget(self.border, 0, 3)
+        self.vbox.addWidget(self.btn, 0, 4)
+
+        self.vbox.setRowStretch(5, 1)
+
+    def send_values(self):
+        self.submitted.emit(
+            self.mask_value,
+            self.border_type
+        )
+        self.close()
+
+    def clicked_border(self, item):
+        self.border_type = item.text()
+
+    def clicked_mask(self, item):
+        self.mask_value = item.text()

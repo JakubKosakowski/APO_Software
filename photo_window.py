@@ -67,6 +67,9 @@ class PhotoWindow(QWidget):
         user_mask = QPushButton('User mask')
         user_mask.clicked.connect(self.user_values)
 
+        median_blur = QPushButton('Median Blur')
+        median_blur.clicked.connect(self.median_blur_values)
+
         self.grid = QGridLayout(self)
         self.grid.addWidget(btn, 0, 0, Qt.AlignHCenter)
         self.grid.addWidget(neg, 0, 1, Qt.AlignHCenter)
@@ -86,6 +89,7 @@ class PhotoWindow(QWidget):
         self.grid.addWidget(prewitt_mask, 2, 2, Qt.AlignHCenter)
         self.grid.addWidget(default, 1, 0, Qt.AlignHCenter)
         self.grid.addWidget(user_mask, 2, 3, Qt.AlignHCenter)
+        self.grid.addWidget(median_blur, 2, 4, Qt.AlignHCenter)
 
 
 
@@ -178,6 +182,11 @@ class PhotoWindow(QWidget):
         self.photo = self.photo_operations.user_mask(self.mask_type, self.border_type)
         self.save_image()
 
+    def median_blur_image(self):
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_BGR2GRAY)
+        self.photo = self.photo_operations.median_blur(self.mask_type, self.border_type)
+        self.save_image()
+
 
     def save_image(self):
         self.photo_hist = Histogram(self.photo)
@@ -254,6 +263,12 @@ class PhotoWindow(QWidget):
         self.border_type = border
         self.user_image()
 
+    @pyqtSlot(str, str)
+    def update_median_blur(self, mask, border):
+        self.mask_type = mask
+        self.border_type = border
+        self.median_blur_image()
+
     def threshold_extend(self):
         self.ui = UiExtends()
         self.ui.submitted.connect(self.update_values)
@@ -312,4 +327,9 @@ class PhotoWindow(QWidget):
     def user_values(self):
         self.ui = User()
         self.ui.submitted.connect(self.update_user)
+        self.ui.show()
+
+    def median_blur_values(self):
+        self.ui = Median()
+        self.ui.submitted.connect(self.update_median_blur)
         self.ui.show()
