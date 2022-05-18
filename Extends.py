@@ -254,7 +254,7 @@ class Mask(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Gaussian values")
+        self.setWindowTitle("Sharp mask")
         self.mask_text = QLabel()
         self.mask_text.setText("Select sharp mask: ")
 
@@ -309,7 +309,7 @@ class Prewitt(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Gaussian values")
+        self.setWindowTitle("Prewitt values")
         self.prewitt_text = QLabel()
         self.prewitt_text.setText("Select Prewitt mask: ")
 
@@ -358,6 +358,53 @@ class Prewitt(QWidget):
 
     def clicked(self, item):
         self.prewitt_type = item.text()
+
+    def clicked_border(self, item):
+        self.border_type = item.text()
+
+class User(QWidget):
+    submitted = pyqtSignal(str, str)
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("User mask")
+        self.mask_text = QLabel()
+        self.mask_text.setText("Write user mask: ")
+
+        self.border_text = QLabel()
+        self.border_text.setText("Select border type: ")
+
+        self.mask_value = QPlainTextEdit(self)
+        self.mask_value.setFixedHeight(150)
+        self.mask_value.insertPlainText("0 0 0\n0 0 0\n0 0 0")
+
+        self.btn = QPushButton("OK")
+        self.btn.clicked.connect(self.send_values)
+
+        self.border = QListWidget()
+        self.border.setGeometry(50, 70, 150, 60)
+        self.border_type = "Isolated"
+        self.border.addItem("Isolated")
+        self.border.addItem("Reflect")
+        self.border.addItem("Replicate")
+        self.border.itemClicked.connect(self.clicked_border)
+
+        self.vbox = QGridLayout(self)
+        self.vbox.addWidget(self.mask_text, 0, 0)
+        self.vbox.addWidget(self.mask_value, 0, 1)
+        self.vbox.addWidget(self.border_text, 0, 2)
+        self.vbox.addWidget(self.border, 0, 3)
+        self.vbox.addWidget(self.btn, 0, 4)
+
+        self.vbox.setRowStretch(5, 1)
+
+
+    def send_values(self):
+        self.submitted.emit(
+            self.mask_value.toPlainText(),
+            self.border_type
+        )
+        self.close()
 
     def clicked_border(self, item):
         self.border_type = item.text()

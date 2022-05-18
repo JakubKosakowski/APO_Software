@@ -16,6 +16,12 @@ class Operations:
     def set_default(self, photo):
         self.photo = photo.copy()
 
+    def user_mask(self, mask, border):
+        border_type = self.set_border_type(border)
+        mask_type = self.set_mask(mask)
+        self.photo = cv2.filter2D(self.photo, cv2.CV_8UC1, mask_type, borderType=border_type)
+        return self.photo
+
     def threshold(self, param1, param2):
         for i in range(len(self.photo)):
             for j in range(len(self.photo[i])):
@@ -176,3 +182,7 @@ class Operations:
         elif mask == "[[ 1, 1, 1]\n[0, 0, 0]\tN\n[ -1, -1, -1]]":
             return np.array([[ 1, 1, 1],[0, 0, 0],[ -1, -1, -1]])
         return np.array([[ 0, 1, 1],[-1, 0, 1],[ -1, -1, 0]])
+
+    def set_mask(self, mask):
+        arr = np.array([[int(j) for j in i.split(' ')] for i in mask.splitlines()])
+        return arr

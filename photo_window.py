@@ -64,7 +64,8 @@ class PhotoWindow(QWidget):
         default = QPushButton('Default image')
         default.clicked.connect(self.default_image)
 
-
+        user_mask = QPushButton('User mask')
+        user_mask.clicked.connect(self.user_values)
 
         self.grid = QGridLayout(self)
         self.grid.addWidget(btn, 0, 0, Qt.AlignHCenter)
@@ -84,6 +85,7 @@ class PhotoWindow(QWidget):
         self.grid.addWidget(mask_sharp, 1, 7, Qt.AlignHCenter)
         self.grid.addWidget(prewitt_mask, 2, 2, Qt.AlignHCenter)
         self.grid.addWidget(default, 1, 0, Qt.AlignHCenter)
+        self.grid.addWidget(user_mask, 2, 3, Qt.AlignHCenter)
 
 
 
@@ -171,6 +173,12 @@ class PhotoWindow(QWidget):
         self.photo_operations.set_default(self.photo)
         self.save_image()
 
+    def user_image(self):
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_BGR2GRAY)
+        self.photo = self.photo_operations.user_mask(self.mask_type, self.border_type)
+        self.save_image()
+
+
     def save_image(self):
         self.photo_hist = Histogram(self.photo)
         frame = self.photo
@@ -240,6 +248,12 @@ class PhotoWindow(QWidget):
         self.border_type = border
         self.prewitt_image()
 
+    @pyqtSlot(str, str)
+    def update_user(self, mask, border):
+        self.mask_type = mask
+        self.border_type = border
+        self.user_image()
+
     def threshold_extend(self):
         self.ui = UiExtends()
         self.ui.submitted.connect(self.update_values)
@@ -293,4 +307,9 @@ class PhotoWindow(QWidget):
     def prewitt_values(self):
         self.ui = Prewitt()
         self.ui.submitted.connect(self.update_prewitt)
+        self.ui.show()
+
+    def user_values(self):
+        self.ui = User()
+        self.ui.submitted.connect(self.update_user)
         self.ui.show()
