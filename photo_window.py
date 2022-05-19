@@ -76,6 +76,9 @@ class PhotoWindow(QWidget):
         subtract = QPushButton('Subtract two images')
         subtract.clicked.connect(self.subtract_images)
 
+        blending = QPushButton("Blending")
+        blending.clicked.connect(self.blending_values)
+
         self.grid = QGridLayout(self)
         self.grid.addWidget(btn, 0, 0, Qt.AlignHCenter)
         self.grid.addWidget(neg, 0, 1, Qt.AlignHCenter)
@@ -98,11 +101,12 @@ class PhotoWindow(QWidget):
         self.grid.addWidget(median_blur, 2, 4, Qt.AlignHCenter)
         self.grid.addWidget(add, 2, 5, Qt.AlignHCenter)
         self.grid.addWidget(subtract, 2, 6, Qt.AlignHCenter)
-
+        self.grid.addWidget(blending, 2, 7, Qt.AlignHCenter)
 
 
         self.argument_one = 0
         self.argument_two = 0
+        self.argument_three = 0
         self.border_type = ""
         self.mask_type= ""
 
@@ -222,6 +226,12 @@ class PhotoWindow(QWidget):
         self.photo = self.photo_operations.median_blur(self.mask_type, self.border_type)
         self.save_image()
 
+    def blending_images(self):
+        self.photo = self.photo_operations.blending_images(self.second_image,
+                                                           self.argument_one,
+                                                           self.argument_two,
+                                                           self.argument_three)
+        self.save_image()
 
     def save_image(self):
         self.photo_hist = Histogram(self.photo)
@@ -304,6 +314,13 @@ class PhotoWindow(QWidget):
         self.border_type = border
         self.median_blur_image()
 
+    @pyqtSlot(str, str, str)
+    def update_blending(self, alpha, beta, gamma):
+        self.argument_one = float(alpha)
+        self.argument_two = float(beta)
+        self.argument_three = int(gamma)
+        self.blending_images()
+
     def threshold_extend(self):
         self.ui = UiExtends()
         self.ui.submitted.connect(self.update_values)
@@ -367,4 +384,10 @@ class PhotoWindow(QWidget):
     def median_blur_values(self):
         self.ui = Median()
         self.ui.submitted.connect(self.update_median_blur)
+        self.ui.show()
+
+    def blending_values(self):
+        self.add_second_image()
+        self.ui = Blending()
+        self.ui.submitted.connect(self.update_blending)
         self.ui.show()

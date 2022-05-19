@@ -182,6 +182,15 @@ class Operations:
 
         return self.photo
 
+    def blending_images(self, second_photo, alpha, beta, gamma):
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_BGR2GRAY)
+        self.photo = cv2.addWeighted(self.photo,
+                                     alpha,second_photo,
+                                     beta, gamma)
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_GRAY2RGB)
+
+        return self.photo
+
     def set_border_type(self, border):
         if border == "Isolated":
             return cv2.BORDER_ISOLATED

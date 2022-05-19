@@ -462,3 +462,58 @@ class Median(QWidget):
 
     def clicked_mask(self, item):
         self.mask_value = item.text()
+
+
+class Blending(QWidget):
+    submitted = pyqtSignal(str, str, str)
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Blending values")
+        self.setFixedWidth(200)
+        self.setFixedHeight(200)
+        self.alpha_text = QLabel()
+        self.alpha_text.move(10, 20)
+        self.alpha_text.setText("Insert alpha values:")
+
+        self.alpha_value = QLineEdit()
+        self.alpha_value.resize(80, 5)
+        self.alpha_value.insert("0.1")
+
+        self.beta_text = QLabel()
+        self.beta_text.move(10, 20)
+        self.beta_text.setText("Insert beta values:")
+
+        self.beta_value = QLineEdit()
+        self.beta_value.resize(80, 5)
+        self.beta_value.insert("0.1")
+
+        self.gamma_text = QLabel()
+        self.gamma_text.move(10, 20)
+        self.gamma_text.setText("Insert gamma values:")
+
+        self.gamma_value = QLineEdit()
+        self.gamma_value.resize(80, 5)
+        self.gamma_value.insert("0")
+
+        self.btn = QPushButton("OK")
+        self.btn.clicked.connect(self.send_values)
+
+        self.vbox = QGridLayout(self)
+        self.vbox.addWidget(self.alpha_text, 0, 0)
+        self.vbox.addWidget(self.alpha_value, 1, 0)
+        self.vbox.addWidget(self.beta_text, 2, 0)
+        self.vbox.addWidget(self.beta_value, 3, 0)
+        self.vbox.addWidget(self.gamma_text, 4, 0)
+        self.vbox.addWidget(self.gamma_value, 5, 0)
+        self.vbox.addWidget(self.btn, 6, 0)
+
+        self.vbox.setRowStretch(7, 1)
+
+    def send_values(self):
+        self.submitted.emit(
+            self.alpha_value.text(),
+            self.beta_value.text(),
+            self.gamma_value.text()
+        )
+        self.close()
