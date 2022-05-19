@@ -85,6 +85,9 @@ class PhotoWindow(QWidget):
         morphological_operations = QPushButton("Morphology operations")
         morphological_operations.clicked.connect(self.morphological_operations_values)
 
+        save_img = QPushButton("Save image as...")
+        save_img.clicked.connect(self.save)
+
         self.grid = QGridLayout(self)
         self.grid.addWidget(btn, 0, 0, Qt.AlignHCenter)
         self.grid.addWidget(neg, 0, 1, Qt.AlignHCenter)
@@ -101,6 +104,7 @@ class PhotoWindow(QWidget):
         self.grid.addWidget(sobel, 1, 5, Qt.AlignHCenter)
         self.grid.addWidget(canny, 1, 6, Qt.AlignHCenter)
         self.grid.addWidget(mask_sharp, 1, 7, Qt.AlignHCenter)
+        self.grid.addWidget(save_img, 2, 0, Qt.AlignHCenter)
         self.grid.addWidget(prewitt_mask, 2, 2, Qt.AlignHCenter)
         self.grid.addWidget(default, 1, 0, Qt.AlignHCenter)
         self.grid.addWidget(user_mask, 2, 3, Qt.AlignHCenter)
@@ -260,6 +264,16 @@ class PhotoWindow(QWidget):
         frame = self.photo
         image = QImage(frame, frame.shape[1], frame.shape[0], frame.strides[0], QImage.Format_RGB888)
         self.label.setPixmap(QPixmap.fromImage(image))
+
+    def save(self, filepath=None):
+        if not filepath:
+            filepath, _ = QFileDialog.getSaveFileName(self, "Save Image", "",
+                                                  "Images (*.png *.jpg *.gif *.bmp);;All Files(*.*) ")
+        if not filepath:
+            return
+        frame = self.photo
+        image = QImage(frame, frame.shape[1], frame.shape[0], frame.strides[0], QImage.Format_RGB888)
+        image.save(filepath)
 
     @pyqtSlot(str, str)
     def update_values(self, min, max):
