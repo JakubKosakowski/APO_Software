@@ -73,6 +73,9 @@ class PhotoWindow(QWidget):
         add = QPushButton('Add two images')
         add.clicked.connect(self.add_images)
 
+        subtract = QPushButton('Subtract two images')
+        subtract.clicked.connect(self.subtract_images)
+
         self.grid = QGridLayout(self)
         self.grid.addWidget(btn, 0, 0, Qt.AlignHCenter)
         self.grid.addWidget(neg, 0, 1, Qt.AlignHCenter)
@@ -94,6 +97,7 @@ class PhotoWindow(QWidget):
         self.grid.addWidget(user_mask, 2, 3, Qt.AlignHCenter)
         self.grid.addWidget(median_blur, 2, 4, Qt.AlignHCenter)
         self.grid.addWidget(add, 2, 5, Qt.AlignHCenter)
+        self.grid.addWidget(subtract, 2, 6, Qt.AlignHCenter)
 
 
 
@@ -117,11 +121,20 @@ class PhotoWindow(QWidget):
         self.second_image = cv2.imread(self.second_image_name, cv2.IMREAD_GRAYSCALE)
 
     def add_images(self):
+        self.add_second_image()
+        self.photo = self.photo_operations.add_images(self.second_image)
+        self.save_image()
+
+    def subtract_images(self):
+        self.add_second_image()
+        self.photo = self.photo_operations.subtract_images(self.second_image)
+        self.save_image()
+
+
+    def add_second_image(self):
         self.open_image()
         self.photo = cv2.cvtColor(self.photo, cv2.COLOR_BGR2GRAY)
         self.second_image = cv2.resize(self.second_image, self.photo.shape)
-        self.photo = self.photo_operations.add_images(self.second_image)
-        self.save_image()
 
     def negative_image(self):
         self.photo = cv2.cvtColor(self.photo, cv2.COLOR_BGR2GRAY)
