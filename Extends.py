@@ -557,3 +557,90 @@ class Logic(QWidget):
 
     def clicked_operation(self, item):
         self.operation_type = item.text()
+
+
+class Morphology(QWidget):
+    submitted = pyqtSignal(str, str, str, str)
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Blending values")
+        self.setFixedWidth(400)
+        self.setFixedHeight(400)
+        self.operation_text = QLabel()
+        self.operation_text.move(10, 20)
+        self.operation_text.setText("Select operation type:")
+
+        self.iteration_text = QLabel()
+        self.iteration_text.move(10, 20)
+        self.iteration_text.setText("Write amount of iterations(Only ERODE and DILATE):")
+
+        self.iteration_value = QLineEdit()
+        self.iteration_value.resize(80, 5)
+        self.iteration_value.insert("1")
+
+        self.element_text = QLabel()
+        self.element_text.move(10, 20)
+        self.element_text.setText("Select structure element:")
+
+        self.border_text = QLabel()
+        self.border_text.move(10, 20)
+        self.border_text.setText("Select border type:")
+
+        self.operation = QListWidget()
+        self.operation.setGeometry(50, 70, 150, 60)
+        self.operation_type = "OPEN"
+        self.operation.addItem("ERODE")
+        self.operation.addItem("DILATE")
+        self.operation.addItem("OPEN")
+        self.operation.addItem("CLOSE")
+        self.operation.itemClicked.connect(self.clicked_operation)
+
+        self.element = QListWidget()
+        self.element.setGeometry(50, 70, 150, 60)
+        self.element_type = "DIAMOND(4x4)"
+        self.element.addItem("DIAMOND(4x4)")
+        self.element.addItem("SQUARE(8x8)")
+        self.element.itemClicked.connect(self.clicked_element)
+
+        self.border = QListWidget()
+        self.border.setGeometry(50, 70, 150, 60)
+        self.border_type = "Isolated"
+        self.border.addItem("Isolated")
+        self.border.addItem("Reflect")
+        self.border.addItem("Replicate")
+        self.border.itemClicked.connect(self.clicked_border)
+
+        self.btn = QPushButton("OK")
+        self.btn.clicked.connect(self.send_values)
+
+        self.vbox = QGridLayout(self)
+        self.vbox.addWidget(self.operation_text, 0, 0)
+        self.vbox.addWidget(self.operation, 1, 0)
+        self.vbox.addWidget(self.element_text, 2, 0)
+        self.vbox.addWidget(self.element, 3, 0)
+        self.vbox.addWidget(self.border_text, 4, 0)
+        self.vbox.addWidget(self.border, 5, 0)
+        self.vbox.addWidget(self.iteration_text, 6, 0)
+        self.vbox.addWidget(self.iteration_value, 7, 0)
+        self.vbox.addWidget(self.btn, 8, 0)
+
+        self.vbox.setRowStretch(9, 1)
+
+    def send_values(self):
+        self.submitted.emit(
+            self.operation_type,
+            self.element_type,
+            self.border_type,
+            self.iteration_value.text()
+        )
+        self.close()
+
+    def clicked_operation(self, item):
+        self.operation_type = item.text()
+
+    def clicked_element(self, item):
+        self.element_type = item.text()
+
+    def clicked_border(self, item):
+        self.border_type = item.text()

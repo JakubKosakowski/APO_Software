@@ -206,12 +206,40 @@ class Operations:
 
         return self.photo
 
+    def morphology_operations(self, operation, element, border, iteration):
+        element_type = self.set_element_type(element)
+        border_type = self.set_border_type(border)
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_BGR2GRAY)
+        img = self.photo.copy()
+        if operation == "ERODE":
+            img = cv2.erode(self.photo, element_type, iterations=iteration,  borderType=border_type)
+        elif operation == "DILATE":
+            img = cv2.dilate(self.photo, element_type, iterations=iteration,  borderType=border_type)
+        elif operation == "OPEN":
+            img = cv2.morphologyEx(self.photo, cv2.MORPH_OPEN, element_type, borderType=border_type)
+        else:
+            img = cv2.morphologyEx(self.photo, cv2.MORPH_CLOSE, element_type, borderType=border_type)
+
+        self.photo = cv2.hconcat((self.photo, img))
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_GRAY2RGB)
+
+        return self.photo
+
+
     def set_border_type(self, border):
         if border == "Isolated":
             return cv2.BORDER_ISOLATED
         elif border == "Reflect":
             return cv2.BORDER_REFLECT
         return cv2.BORDER_REPLICATE
+
+    def diamond(self, r):
+        return np.uint8(np.add.outer(*[np.r_[:r, r:-1:-1]] * 2) >= r)
+
+    def set_element_type(self, element):
+        if element == "DIAMOND":
+            return self.diamond(3)
+        return cv2.getStructuringElement(cv2.MORPH_RECT,(8,8))
 
     def set_mask_type(self, mask):
         if mask == "[[ 0,-1, 0]\n[-1, 5,-1]\n[ 0,-1, 0]]":

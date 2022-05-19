@@ -82,6 +82,9 @@ class PhotoWindow(QWidget):
         logical_operations = QPushButton("Logical operations")
         logical_operations.clicked.connect(self.logical_operations_values)
 
+        morphological_operations = QPushButton("Morphology operations")
+        morphological_operations.clicked.connect(self.morphological_operations_values)
+
         self.grid = QGridLayout(self)
         self.grid.addWidget(btn, 0, 0, Qt.AlignHCenter)
         self.grid.addWidget(neg, 0, 1, Qt.AlignHCenter)
@@ -106,11 +109,13 @@ class PhotoWindow(QWidget):
         self.grid.addWidget(subtract, 2, 6, Qt.AlignHCenter)
         self.grid.addWidget(blending, 2, 7, Qt.AlignHCenter)
         self.grid.addWidget(logical_operations, 3, 2, Qt.AlignHCenter)
+        self.grid.addWidget(morphological_operations, 3, 3, Qt.AlignHCenter)
 
 
         self.argument_one = 0
         self.argument_two = 0
         self.argument_three = 0
+        self.element_type = ""
         self.border_type = ""
         self.mask_type= ""
 
@@ -241,6 +246,15 @@ class PhotoWindow(QWidget):
         self.photo = self.photo_operations.logical_operations(self.second_image, self.border_type)
         self.save_image()
 
+    def morphology_image(self):
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_BGR2GRAY)
+        self.photo = self.photo_operations.morphology_operations(self.mask_type,
+                                                                 self.element_type,
+                                                                 self.border_type,
+                                                                 self.argument_one)
+        self.save_image()
+
+
     def save_image(self):
         self.photo_hist = Histogram(self.photo)
         frame = self.photo
@@ -334,6 +348,14 @@ class PhotoWindow(QWidget):
         self.border_type = operation
         self.operation_images()
 
+    @pyqtSlot(str, str, str, str)
+    def update_morphology(self, operation, element, border, iteration):
+        self.mask_type = operation
+        self.element_type = element
+        self.border_type = border
+        self.argument_one = int(iteration)
+        self.morphology_image()
+
     def threshold_extend(self):
         self.ui = UiExtends()
         self.ui.submitted.connect(self.update_values)
@@ -409,4 +431,9 @@ class PhotoWindow(QWidget):
         self.add_second_image()
         self.ui = Logic()
         self.ui.submitted.connect(self.update_operation)
+        self.ui.show()
+
+    def morphological_operations_values(self):
+        self.ui = Morphology()
+        self.ui.submitted.connect(self.update_morphology)
         self.ui.show()
