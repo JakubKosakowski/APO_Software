@@ -517,3 +517,43 @@ class Blending(QWidget):
             self.gamma_value.text()
         )
         self.close()
+
+class Logic(QWidget):
+    submitted = pyqtSignal(str)
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Blending values")
+        self.setFixedWidth(200)
+        self.setFixedHeight(200)
+        self.operation_text = QLabel()
+        self.operation_text.move(10, 20)
+        self.operation_text.setText("Select operation type:")
+
+        self.operation = QListWidget()
+        self.operation.setGeometry(50, 70, 150, 60)
+        self.operation_type = "NOT"
+        self.operation.addItem("NOT")
+        self.operation.addItem("AND")
+        self.operation.addItem("OR")
+        self.operation.addItem("XOR")
+        self.operation.itemClicked.connect(self.clicked_operation)
+
+        self.btn = QPushButton("OK")
+        self.btn.clicked.connect(self.send_values)
+
+        self.vbox = QGridLayout(self)
+        self.vbox.addWidget(self.operation_text, 0, 0)
+        self.vbox.addWidget(self.operation, 1, 0)
+        self.vbox.addWidget(self.btn, 2, 0)
+
+        self.vbox.setRowStretch(3, 1)
+
+    def send_values(self):
+        self.submitted.emit(
+            self.operation_type
+        )
+        self.close()
+
+    def clicked_operation(self, item):
+        self.operation_type = item.text()

@@ -191,6 +191,21 @@ class Operations:
 
         return self.photo
 
+    def logical_operations(self, second_photo, operation):
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_BGR2GRAY)
+        if operation == "AND":
+            self.photo = cv2.bitwise_and(self.photo, second_photo)
+        elif operation == "OR":
+            self.photo = cv2.bitwise_or(self.photo, second_photo)
+        elif operation == "XOR":
+            self.photo = cv2.bitwise_xor(self.photo, second_photo)
+        else:
+            self.photo = cv2.bitwise_not(second_photo)
+            self.photo = cv2.hconcat((second_photo, self.photo))
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_GRAY2RGB)
+
+        return self.photo
+
     def set_border_type(self, border):
         if border == "Isolated":
             return cv2.BORDER_ISOLATED

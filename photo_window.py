@@ -79,6 +79,9 @@ class PhotoWindow(QWidget):
         blending = QPushButton("Blending")
         blending.clicked.connect(self.blending_values)
 
+        logical_operations = QPushButton("Logical operations")
+        logical_operations.clicked.connect(self.logical_operations_values)
+
         self.grid = QGridLayout(self)
         self.grid.addWidget(btn, 0, 0, Qt.AlignHCenter)
         self.grid.addWidget(neg, 0, 1, Qt.AlignHCenter)
@@ -102,6 +105,7 @@ class PhotoWindow(QWidget):
         self.grid.addWidget(add, 2, 5, Qt.AlignHCenter)
         self.grid.addWidget(subtract, 2, 6, Qt.AlignHCenter)
         self.grid.addWidget(blending, 2, 7, Qt.AlignHCenter)
+        self.grid.addWidget(logical_operations, 3, 2, Qt.AlignHCenter)
 
 
         self.argument_one = 0
@@ -233,6 +237,10 @@ class PhotoWindow(QWidget):
                                                            self.argument_three)
         self.save_image()
 
+    def operation_images(self):
+        self.photo = self.photo_operations.logical_operations(self.second_image, self.border_type)
+        self.save_image()
+
     def save_image(self):
         self.photo_hist = Histogram(self.photo)
         frame = self.photo
@@ -321,6 +329,11 @@ class PhotoWindow(QWidget):
         self.argument_three = int(gamma)
         self.blending_images()
 
+    @pyqtSlot(str)
+    def update_operation(self, operation):
+        self.border_type = operation
+        self.operation_images()
+
     def threshold_extend(self):
         self.ui = UiExtends()
         self.ui.submitted.connect(self.update_values)
@@ -390,4 +403,10 @@ class PhotoWindow(QWidget):
         self.add_second_image()
         self.ui = Blending()
         self.ui.submitted.connect(self.update_blending)
+        self.ui.show()
+
+    def logical_operations_values(self):
+        self.add_second_image()
+        self.ui = Logic()
+        self.ui.submitted.connect(self.update_operation)
         self.ui.show()
