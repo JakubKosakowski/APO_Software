@@ -168,6 +168,13 @@ class Operations:
 
         return self.photo
 
+    def add_images(self, second_photo):
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_BGR2GRAY)
+        self.photo = cv2.add(self.photo, second_photo)
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_GRAY2RGB)
+
+        return self.photo
+
     def set_border_type(self, border):
         if border == "Isolated":
             return cv2.BORDER_ISOLATED

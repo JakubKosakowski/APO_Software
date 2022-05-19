@@ -70,6 +70,9 @@ class PhotoWindow(QWidget):
         median_blur = QPushButton('Median Blur')
         median_blur.clicked.connect(self.median_blur_values)
 
+        add = QPushButton('Add two images')
+        add.clicked.connect(self.add_images)
+
         self.grid = QGridLayout(self)
         self.grid.addWidget(btn, 0, 0, Qt.AlignHCenter)
         self.grid.addWidget(neg, 0, 1, Qt.AlignHCenter)
@@ -90,6 +93,7 @@ class PhotoWindow(QWidget):
         self.grid.addWidget(default, 1, 0, Qt.AlignHCenter)
         self.grid.addWidget(user_mask, 2, 3, Qt.AlignHCenter)
         self.grid.addWidget(median_blur, 2, 4, Qt.AlignHCenter)
+        self.grid.addWidget(add, 2, 5, Qt.AlignHCenter)
 
 
 
@@ -100,6 +104,24 @@ class PhotoWindow(QWidget):
 
     def show_hist(self):
         self.photo_hist.show_hist()
+
+    def open_image(self, filename=None):
+        if not filename:
+            filename, _ = QFileDialog.getOpenFileName(
+                                                      self, 'Select Photo',
+                                                      QDir.currentPath(),
+                                                      'Images (*.png *.jpg *.gif *.bmp)')
+            if not filename:
+                return
+        self.second_image_name = filename
+        self.second_image = cv2.imread(self.second_image_name, cv2.IMREAD_GRAYSCALE)
+
+    def add_images(self):
+        self.open_image()
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_BGR2GRAY)
+        self.second_image = cv2.resize(self.second_image, self.photo.shape)
+        self.photo = self.photo_operations.add_images(self.second_image)
+        self.save_image()
 
     def negative_image(self):
         self.photo = cv2.cvtColor(self.photo, cv2.COLOR_BGR2GRAY)
