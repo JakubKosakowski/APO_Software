@@ -22,4 +22,17 @@ The next things are operations. In first version you could show histogram and...
 - Linear defuzzification with 3 Laplacian masks
 - Directional edge detection with 8 basic Prewitt masks
 
-That's all what I made with this app in last 2 months.
+# How to run APO_Software
+```
+$ git clone https://github.com/JakubKosakowski/APO_Software.git
+
+$ cd APO_Software
+
+$ python -m venv venv
+
+$ venv\Scripts\activate.bat
+
+$ pip install -r requirements.txt
+
+$ python main_window.py
+```
