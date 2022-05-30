@@ -644,3 +644,41 @@ class Morphology(QWidget):
 
     def clicked_border(self, item):
         self.border_type = item.text()
+
+class Two_Stages(QWidget):
+    submitted = pyqtSignal(str)
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Two stages filter")
+
+        self.border_text = QLabel()
+        self.border_text.setText("Select border type: ")
+
+        self.btn = QPushButton("OK")
+        self.btn.clicked.connect(self.send_values)
+
+        self.border = QListWidget()
+        self.border.setGeometry(50, 70, 150, 60)
+        self.border_type = "Isolated"
+        self.border.addItem("Isolated")
+        self.border.addItem("Reflect")
+        self.border.addItem("Replicate")
+        self.border.itemClicked.connect(self.clicked_border)
+
+        self.vbox = QGridLayout(self)
+        self.vbox.addWidget(self.border_text, 0, 0)
+        self.vbox.addWidget(self.border, 1, 0)
+        self.vbox.addWidget(self.btn, 2, 0)
+
+        self.vbox.setRowStretch(3, 1)
+
+
+    def clicked_border(self, item):
+        self.border_type = item.text()
+
+    def send_values(self):
+        self.submitted.emit(
+            self.border_type
+        )
+        self.close()

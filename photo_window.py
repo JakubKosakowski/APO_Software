@@ -88,6 +88,12 @@ class PhotoWindow(QWidget):
         save_img = QPushButton("Save image as...")
         save_img.clicked.connect(self.save)
 
+        skeletonize = QPushButton("Skeletonize")
+        skeletonize.clicked.connect(self.skeletonize_image)
+
+        two_stages_filter = QPushButton("Two stages filter")
+        two_stages_filter.clicked.connect(self.two_stages_filter_values)
+
         self.grid = QGridLayout(self)
         self.grid.addWidget(btn, 0, 0, Qt.AlignHCenter)
         self.grid.addWidget(neg, 0, 1, Qt.AlignHCenter)
@@ -114,6 +120,8 @@ class PhotoWindow(QWidget):
         self.grid.addWidget(blending, 2, 7, Qt.AlignHCenter)
         self.grid.addWidget(logical_operations, 3, 2, Qt.AlignHCenter)
         self.grid.addWidget(morphological_operations, 3, 3, Qt.AlignHCenter)
+        self.grid.addWidget(skeletonize, 3, 4, Qt.AlignHCenter)
+        self.grid.addWidget(two_stages_filter, 3, 5, Qt.AlignHCenter)
 
 
         self.argument_one = 0
@@ -147,6 +155,10 @@ class PhotoWindow(QWidget):
         self.photo = self.photo_operations.subtract_images(self.second_image)
         self.save_image()
 
+    def skeletonize_image(self):
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_BGR2GRAY)
+        self.photo = self.photo_operations.skeletonize()
+        self.save_image()
 
     def add_second_image(self):
         self.open_image()
@@ -256,6 +268,11 @@ class PhotoWindow(QWidget):
                                                                  self.element_type,
                                                                  self.border_type,
                                                                  self.argument_one)
+        self.save_image()
+
+    def two_stages_filter_image(self):
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_BGR2GRAY)
+        self.photo = self.photo_operations.two_stages_filter(self.border_type)
         self.save_image()
 
 
@@ -370,6 +387,11 @@ class PhotoWindow(QWidget):
         self.argument_one = int(iteration)
         self.morphology_image()
 
+    @pyqtSlot(str)
+    def update_two_stages(self, border):
+        self.border_type = border
+        self.two_stages_filter_image()
+
     def threshold_extend(self):
         self.ui = UiExtends()
         self.ui.submitted.connect(self.update_values)
@@ -450,4 +472,9 @@ class PhotoWindow(QWidget):
     def morphological_operations_values(self):
         self.ui = Morphology()
         self.ui.submitted.connect(self.update_morphology)
+        self.ui.show()
+
+    def two_stages_filter_values(self):
+        self.ui = Two_Stages()
+        self.ui.submitted.connect(self.update_two_stages)
         self.ui.show()

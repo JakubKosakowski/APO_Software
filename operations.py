@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from scipy.signal import convolve2d as conv2
 from PIL import Image
 
 class Operations:
@@ -225,6 +226,55 @@ class Operations:
 
         return self.photo
 
+    def skeletonize(self):
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_BGR2GRAY)
+        skel = np.zeros(self.photo.shape, np.uint8)
+        size = np.size(self.photo)
+        im_copy = self.photo.copy()
+        element = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
+
+        while True:
+            im_open = cv2.morphologyEx(im_copy, cv2.MORPH_OPEN, element)
+            # Krok 3: Odjęcie powyższego wyniku od obrazu oryginalnego
+            im_temp = cv2.subtract(im_copy, im_open)
+            # Krok 4:
+            # erozja morfologiczna
+            im_eroded = cv2.erode(im_copy, element)
+            # aktualizacja szkieletu
+            skel = cv2.bitwise_or(skel, im_temp)
+            # aktualizacja obrazu przetwarzanego
+            im_copy = im_eroded.copy()
+
+            zeros = size - cv2.countNonZero(im_copy)
+
+            if zeros == size:
+                break
+
+        skel = cv2.cvtColor(skel, cv2.COLOR_GRAY2RGB)
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_GRAY2RGB)
+        self.photo = cv2.hconcat((self.photo, skel))
+
+        return self.photo
+
+    def two_stages_filter(self, border):
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_BGR2GRAY)
+        border_type = self.set_border_type(border)
+        mF = np.ones((3, 3))
+        mG = np.array([[1, -2, 1],
+                       [-2, 4, -2],
+                       [1, -2, 1]])
+        mH = conv2(mF, mG, mode='full')
+        res_step1 = cv2.filter2D(self.photo, cv2.CV_8UC1, mF, borderType=border_type)
+        res_step2 = cv2.filter2D(res_step1, cv2.CV_8UC1, mG, borderType=border_type)
+
+        res_5x5 = cv2.filter2D(self.photo, cv2.CV_8UC1, mH, borderType=border_type)
+
+        res_step2 = cv2.cvtColor(res_step2, cv2.COLOR_GRAY2RGB)
+        res_5x5 = cv2.cvtColor(res_5x5, cv2.COLOR_GRAY2RGB)
+
+        self.photo = cv2.hconcat((res_step2, res_5x5))
+
+        return self.photo
 
     def set_border_type(self, border):
         if border == "Isolated":
