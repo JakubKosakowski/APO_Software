@@ -256,13 +256,11 @@ class Operations:
 
         return self.photo
 
-    def two_stages_filter(self, border):
+    def two_stages_filter(self, border, first, second):
         self.photo = cv2.cvtColor(self.photo, cv2.COLOR_BGR2GRAY)
         border_type = self.set_border_type(border)
-        mF = np.ones((3, 3))
-        mG = np.array([[1, -2, 1],
-                       [-2, 4, -2],
-                       [1, -2, 1]])
+        mF = self.set_mask(first)
+        mG = self.set_mask(second)
         mH = conv2(mF, mG, mode='full')
         res_step1 = cv2.filter2D(self.photo, cv2.CV_8UC1, mF, borderType=border_type)
         res_step2 = cv2.filter2D(res_step1, cv2.CV_8UC1, mG, borderType=border_type)
@@ -273,6 +271,28 @@ class Operations:
         res_5x5 = cv2.cvtColor(res_5x5, cv2.COLOR_GRAY2RGB)
 
         self.photo = cv2.hconcat((res_step2, res_5x5))
+
+        return self.photo
+
+    def otsu(self):
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_BGR2GRAY)
+        ret, self.photo = cv2.threshold(self.photo, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_GRAY2BGR)
+        return self.photo
+
+    def adaptive_threshold(self):
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_BGR2GRAY)
+        max_value = 255
+        adaptive_method = cv2.ADAPTIVE_THRESH_MEAN_C
+        threshold_type = cv2.THRESH_BINARY
+        block_size = 11
+
+        img_th = cv2.adaptiveThreshold(self.photo, max_value, adaptive_method, threshold_type, block_size, 5)
+
+        img_th = cv2.cvtColor(img_th, cv2.COLOR_GRAY2BGR)
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_GRAY2BGR)
+
+        self.photo = cv2.hconcat((self.photo, img_th))
 
         return self.photo
 

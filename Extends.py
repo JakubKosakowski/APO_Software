@@ -646,11 +646,25 @@ class Morphology(QWidget):
         self.border_type = item.text()
 
 class Two_Stages(QWidget):
-    submitted = pyqtSignal(str)
+    submitted = pyqtSignal(str, str, str)
 
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Two stages filter")
+
+        self.first_mask_text = QLabel()
+        self.first_mask_text.setText("Write user mask: ")
+
+        self.second_mask_text = QLabel()
+        self.second_mask_text.setText("Write user mask: ")
+
+        self.first_mask_value = QPlainTextEdit(self)
+        self.first_mask_value.setFixedHeight(150)
+        self.first_mask_value.insertPlainText("0 0 0\n0 0 0\n0 0 0")
+
+        self.second_mask_value = QPlainTextEdit(self)
+        self.second_mask_value.setFixedHeight(150)
+        self.second_mask_value.insertPlainText("0 0 0\n0 0 0\n0 0 0")
 
         self.border_text = QLabel()
         self.border_text.setText("Select border type: ")
@@ -667,11 +681,15 @@ class Two_Stages(QWidget):
         self.border.itemClicked.connect(self.clicked_border)
 
         self.vbox = QGridLayout(self)
-        self.vbox.addWidget(self.border_text, 0, 0)
-        self.vbox.addWidget(self.border, 1, 0)
-        self.vbox.addWidget(self.btn, 2, 0)
+        self.vbox.addWidget(self.first_mask_text, 0, 0)
+        self.vbox.addWidget(self.first_mask_value, 0, 1)
+        self.vbox.addWidget(self.second_mask_text, 0, 2)
+        self.vbox.addWidget(self.second_mask_value, 0, 3)
+        self.vbox.addWidget(self.border_text, 0, 4)
+        self.vbox.addWidget(self.border, 0, 5)
+        self.vbox.addWidget(self.btn, 1, 0)
 
-        self.vbox.setRowStretch(3, 1)
+        self.vbox.setRowStretch(7, 1)
 
 
     def clicked_border(self, item):
@@ -679,6 +697,8 @@ class Two_Stages(QWidget):
 
     def send_values(self):
         self.submitted.emit(
+            self.first_mask_value.toPlainText(),
+            self.second_mask_value.toPlainText(),
             self.border_type
         )
         self.close()

@@ -94,6 +94,12 @@ class PhotoWindow(QWidget):
         two_stages_filter = QPushButton("Two stages filter")
         two_stages_filter.clicked.connect(self.two_stages_filter_values)
 
+        otsu = QPushButton("Otsu thresholding")
+        otsu.clicked.connect(self.otsu_image)
+
+        adaptive_threshold = QPushButton("Adaptive threshold")
+        adaptive_threshold.clicked.connect(self.adaptive_threshold_image)
+
         self.grid = QGridLayout(self)
         self.grid.addWidget(btn, 0, 0, Qt.AlignHCenter)
         self.grid.addWidget(neg, 0, 1, Qt.AlignHCenter)
@@ -122,7 +128,8 @@ class PhotoWindow(QWidget):
         self.grid.addWidget(morphological_operations, 3, 3, Qt.AlignHCenter)
         self.grid.addWidget(skeletonize, 3, 4, Qt.AlignHCenter)
         self.grid.addWidget(two_stages_filter, 3, 5, Qt.AlignHCenter)
-
+        self.grid.addWidget(otsu, 3, 6, Qt.AlignHCenter)
+        self.grid.addWidget(adaptive_threshold, 3, 7, Qt.AlignHCenter)
 
         self.argument_one = 0
         self.argument_two = 0
@@ -168,6 +175,16 @@ class PhotoWindow(QWidget):
     def negative_image(self):
         self.photo = cv2.cvtColor(self.photo, cv2.COLOR_BGR2GRAY)
         self.photo = self.photo_operations.negation()
+        self.save_image()
+
+    def otsu_image(self):
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_RGB2GRAY)
+        self.photo = self.photo_operations.otsu()
+        self.save_image()
+
+    def adaptive_threshold_image(self):
+        self.photo = cv2.cvtColor(self.photo, cv2.COLOR_RGB2GRAY)
+        self.photo = self.photo_operations.adaptive_threshold()
         self.save_image()
 
     def threshold_image(self):
@@ -272,7 +289,7 @@ class PhotoWindow(QWidget):
 
     def two_stages_filter_image(self):
         self.photo = cv2.cvtColor(self.photo, cv2.COLOR_BGR2GRAY)
-        self.photo = self.photo_operations.two_stages_filter(self.border_type)
+        self.photo = self.photo_operations.two_stages_filter(self.border_type, self.argument_one, self.argument_two)
         self.save_image()
 
 
@@ -387,9 +404,11 @@ class PhotoWindow(QWidget):
         self.argument_one = int(iteration)
         self.morphology_image()
 
-    @pyqtSlot(str)
-    def update_two_stages(self, border):
+    @pyqtSlot(str, str, str)
+    def update_two_stages(self, first, second, border):
         self.border_type = border
+        self.argument_one = first
+        self.argument_two = second
         self.two_stages_filter_image()
 
     def threshold_extend(self):
